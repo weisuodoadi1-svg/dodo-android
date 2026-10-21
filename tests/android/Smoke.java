@@ -70,6 +70,7 @@ public final class Smoke extends Instrumentation {
    Object model=field("model");modelClass.getMethod("merge",JSONArray.class).invoke(model,new JSONArray("[{\"Id\":10,\"UserId\":8},{\"Id\":11,\"UserId\":9}]"));
    Method refresh=chat.getDeclaredMethod("refresh");refresh.setAccessible(true);refresh.invoke(nativeActivity);
    require(((List<?>)field("rows")).size()==1,"leader filter excludes regular member");
+   TextView[] filters=(TextView[])field("filters");require(filters[1].isSelected()&&!filters[0].isSelected()&&!filters[2].isSelected(),"exactly one owner segment selected");int version=(Integer)field("loadVersion");filters[1].performClick();require((Integer)field("loadVersion")==version&&((List<?>)field("rows")).size()==1,"reselect owner keeps messages without reloading");filters[0].performClick();require(filters[0].isSelected()&&!filters[1].isSelected(),"all clears owner selection");modelClass.getMethod("merge",JSONArray.class).invoke(model,new JSONArray("[{\"Id\":10,\"UserId\":8},{\"Id\":11,\"UserId\":9}]"));refresh.invoke(nativeActivity);require(((List<?>)field("rows")).size()==2,"all restores regular members");
    nativeActivity.findViewById(android.R.id.content).findViewWithTag("local.zft.filter.2").performClick();
    require(((Integer)field("filterMode"))==2&&((List<?>)field("rows")).isEmpty(),"my messages has separate result set");
    require((Boolean)modelClass.getMethod("relatesToMe",JSONObject.class).invoke(model,new JSONObject("{\"UserId\":9,\"OriginData\":[{\"UserId\":7}]}")),"replies to me included");
@@ -107,7 +108,8 @@ public final class Smoke extends Instrumentation {
    require(((ImageView)image.findViewWithTag(photo.getString("Content"))).getDrawable()!=null,"image cache displayed");
    TextView text=(TextView)left.findViewWithTag("local.zft.message-text");require(Math.abs(text.getTextSize()/getTargetContext().getResources().getDisplayMetrics().scaledDensity-16)<.1,"approved normal font 16sp");
    View topTabs=nativeActivity.findViewById(android.R.id.content).findViewWithTag("local.zft.filter.0");
-   require(topTabs.getParent()==nativeActivity.findViewById(android.R.id.content).findViewWithTag("local.zft.filter.2").getParent(),"top two segments");
+   require(topTabs.getParent()==nativeActivity.findViewById(android.R.id.content).findViewWithTag("local.zft.filter.2").getParent(),"shared filter row");
+   require(topTabs.getParent()==nativeActivity.findViewById(android.R.id.content).findViewWithTag("local.zft.filter.1").getParent(),"owner filter shares the same row");
    require(nativeActivity.findViewById(android.R.id.content).findViewWithTag("local.zft.filter.3")==null,"stocks removed from chat filters");
    text.performClick();require(((Long)field("replyId"))==21L,"tap text selects reply");require(((TextView)field("replySummary")).getText().toString().contains("示例消息"),"reply previews original content");require(((View)field("replyCard")).getVisibility()==View.VISIBLE,"reply card visible");((TextView)field("reply")).performClick();require(((Long)field("replyId"))==0L,"cancel reply clears target");require(nativeActivity.getWindow().getDecorView().findViewWithTag("local.zft.photo")!=null,"native image picker present");
    list.setSelection(0);
