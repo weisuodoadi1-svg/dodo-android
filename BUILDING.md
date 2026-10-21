@@ -21,7 +21,7 @@ python3 scripts/build.py \
   --alias your-key-alias
 ```
 
-生成 `dist/dodo-1.3.0-dodo.2.apk` 与 `dist/SHA256SUMS`。
+生成 `dist/dodo-1.3.0-dodo.3.apk` 与 `dist/SHA256SUMS`。
 
 构建过程会校验原包摘要、解包、应用资源改动、编译新增 Java 类、隔离 WebSocket 依赖、校验固定的接入点、对齐并签名。遇到原版结构不匹配时中止，不尝试猜测兼容。
 
@@ -35,7 +35,7 @@ python3 scripts/build.py \
 
 ```sh
 python3 scripts/build_tests.py --keystore /path/to/release.keystore --alias your-key-alias
-adb -s YOUR_EMULATOR install -r --no-incremental dist/dodo-1.3.0-dodo.2.apk
+adb -s YOUR_EMULATOR install -r --no-incremental dist/dodo-1.3.0-dodo.3.apk
 adb -s YOUR_EMULATOR install -r --no-incremental build/android-tests/tests.apk
 adb -s YOUR_EMULATOR shell am instrument -w local.zfttests/.Smoke
 adb -s YOUR_EMULATOR shell am instrument -w local.zfttests/.Navigation
