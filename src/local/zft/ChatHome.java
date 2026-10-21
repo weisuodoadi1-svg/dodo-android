@@ -75,7 +75,7 @@ public final class ChatHome implements Application.ActivityLifecycleCallbacks {
  }
  private String account(Activity a){try{return "circle."+Class.forName("com.androidUtil.network.AndroidUtils").getMethod("r",Context.class,String.class,String.class).invoke(null,a,"LOGIN","LOGIN_ID");}catch(Exception e){return "circle.unknown";}}
  public void onActivityCreated(Activity a,Bundle b){if("com.zhongfutong.main.WelcomeView".equals(a.getClass().getName())){selected=0;}if(mainTab(a)){forumId=a.getSharedPreferences("local.zft.navigation",0).getString(account(a),"");main=new WeakReference<>(a);a.getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(()->hideTabs(a));}}
- public void onActivityResumed(Activity a){active=a;if(a instanceof AiActivity)selected=4;else if(a instanceof StockActivity)selected=3;else if(a instanceof NativeChat)selected=0;if(mainTab(a)||forum(a))poll(a,0);}
+ public void onActivityResumed(Activity a){active=a;if("com.zhongfutong.main.ImagePagerActivity".equals(a.getClass().getName()))a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);if(a instanceof AiActivity)selected=4;else if(a instanceof StockActivity)selected=3;else if(a instanceof NativeChat)selected=0;if(mainTab(a)||forum(a))poll(a,0);}
  public void onActivityPaused(Activity a){if(active==a)active=null;}
  public void onActivityDestroyed(Activity a){entered.remove(a);}
  public void onActivityStarted(Activity a){} public void onActivityStopped(Activity a){} public void onActivitySaveInstanceState(Activity a,Bundle b){}
