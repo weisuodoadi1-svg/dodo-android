@@ -32,6 +32,20 @@ public final class ChatHome implements Application.ActivityLifecycleCallbacks {
     }
 
  private static View id(Activity a,String name){int id=a.getResources().getIdentifier(name,"id",a.getPackageName());return id==0?null:a.findViewById(id);}
+ private static void hideLoginChoices(Activity a){for(String name:new String[]{"top_third_login","ll_qq_login","ll_wx_login","ll_wb_login","tv_login_old","text_third_login","ll_third_party_login","lyAccountLogin","lyPwd"}){View v=id(a,name);if(v!=null)v.setVisibility(View.GONE);}}
+ private static void smsLogin(Activity a){
+  String name=a.getClass().getName();boolean first=name.equals("com.zhongfutong.main.SecretFreeAct");if(!first&&!name.equals("com.zhongfutong.main.SecretFreeAct2"))return;
+  a.getIntent().removeExtra("loginType");
+  View title=id(a,"tv_title");if(title==null)return;
+  if(!"local.zft.sms".equals(title.getTag())){try{
+   // The two original activities use opposite values for their SMS mode.
+   java.lang.reflect.Method mode=a.getClass().getDeclaredMethod(first?"q5":"x5",String.class);mode.setAccessible(true);mode.invoke(a,first?"0":"1");title.setTag("local.zft.sms");
+  }catch(Exception e){Log.e("ZftClean","SMS login mode",e);return;}}
+  for(String entry:new String[]{"iv_qq_login","iv_weixin_login","iv_weibo_login","lyWeChatLogin"}){View v=id(a,entry);if(v!=null){v.setOnClickListener(null);v.setEnabled(false);}}
+  hideLoginChoices(a);((TextView)title).setText("手机验证码登录");title.setVisibility(View.VISIBLE);
+  for(String entry:new String[]{"ll_input","tv_login","lyAgreement"}){View v=id(a,entry);if(v!=null)v.setVisibility(View.VISIBLE);}
+  for(String entry:new String[]{"et_phone","et_code"}){View v=id(a,entry);if(v instanceof EditText)((EditText)v).setInputType(android.text.InputType.TYPE_CLASS_NUMBER);}
+ }
  private static boolean mainTab(Activity a){return MAIN.equals(a.getClass().getName());}
  private static boolean forum(Activity a){return FORUM.equals(a.getClass().getName());}
  private static void selectTab(Activity a,int tab){try{a.getClass().getMethod("T5",int.class,boolean.class).invoke(a,tab,false);}catch(Exception e){Log.e("ZftClean","tab selection",e);}}
@@ -74,9 +88,9 @@ public final class ChatHome implements Application.ActivityLifecycleCallbacks {
   View old=wrap.findViewWithTag("local.zft.tabs");if(old!=null&&old.findViewWithTag("local.zft.tab."+tab).isSelected())return;if(old!=null)wrap.removeView(old);View nav=Ui.navigation(a,tab,i->navigate(a,i));wrap.addView(nav);a.getWindow().setNavigationBarColor(-1);
  }
  private String account(Activity a){try{return "circle."+Class.forName("com.androidUtil.network.AndroidUtils").getMethod("r",Context.class,String.class,String.class).invoke(null,a,"LOGIN","LOGIN_ID");}catch(Exception e){return "circle.unknown";}}
- public void onActivityCreated(Activity a,Bundle b){if("com.zhongfutong.main.WelcomeView".equals(a.getClass().getName())){selected=0;}if(mainTab(a)){forumId=a.getSharedPreferences("local.zft.navigation",0).getString(account(a),"");main=new WeakReference<>(a);a.getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(()->hideTabs(a));}}
+ public void onActivityCreated(Activity a,Bundle b){if("com.zhongfutong.main.WelcomeView".equals(a.getClass().getName())){selected=0;}if(mainTab(a)){forumId=a.getSharedPreferences("local.zft.navigation",0).getString(account(a),"");main=new WeakReference<>(a);a.getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(()->{hideTabs(a);hideLoginChoices(a);});}}
  public void onActivityResumed(Activity a){active=a;if("com.zhongfutong.main.ImagePagerActivity".equals(a.getClass().getName()))a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);if(a instanceof AiActivity)selected=4;else if(a instanceof StockActivity)selected=3;else if(a instanceof NativeChat)selected=0;if(mainTab(a)||forum(a))poll(a,0);}
  public void onActivityPaused(Activity a){if(active==a)active=null;}
  public void onActivityDestroyed(Activity a){entered.remove(a);}
- public void onActivityStarted(Activity a){} public void onActivityStopped(Activity a){} public void onActivitySaveInstanceState(Activity a,Bundle b){}
+ public void onActivityStarted(Activity a){smsLogin(a);} public void onActivityStopped(Activity a){} public void onActivitySaveInstanceState(Activity a,Bundle b){}
 }
