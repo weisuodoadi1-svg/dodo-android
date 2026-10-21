@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item><shape><solid android:color="#fffdf8ee" /></shape></item>
+    <item android:width="@dimen/dodo_splash_width" android:height="@dimen/dodo_splash_height" android:gravity="center" android:drawable="@drawable/all_in_ai_splash" />
+</layer-list>

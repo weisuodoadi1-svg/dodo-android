@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {parseOriginal,fetchSnapshot} from '../../assets/stocks/original-api.mjs';
+const daily={};for(let i=1;i<=21;i++)daily[`2026-10-${String(i).padStart(2,'0')}`]={open:'10',high:'12',low:'9',close:'11',volume:'100',amount:'100000'};
+const minute={min_list:{[Date.parse('2026-10-21T11:30:00+08:00')/60000]:{p:'11',a:'10.5',v:'1000'}}};
+const parsed=parseOriginal(daily,minute);assert.equal(parsed.candles[0].volume,10000);assert.equal(parsed.intraday[0].time,'2026-10-21 11:30');assert.throws(()=>parseOriginal({},minute));assert.throws(()=>parseOriginal(daily,{min_list:{oops:{p:0}}}));assert.throws(()=>parseOriginal(daily,{min_list:{[Date.parse('2026-10-20T11:30:00+08:00')/60000]:{p:11,a:10,v:1}}}));
+const s=await fetchSnapshot({code:'600519',market:'SSE',name:'贵州茅台'},{now:Date.parse('2026-10-21T11:31:00+08:00'),fetchImpl:async url=>({ok:true,json:async()=>url.includes('history')?daily:minute})});assert.equal(s.sources.daily,'original');assert.equal(s.quote.latest,11);assert.equal(s.ma20,11);assert.equal(s.stale,false);
+const previousDay={...daily};delete previousDay['2026-10-21'];assert.equal(parseOriginal(previousDay,minute).intraday.length,1);assert.equal(parseOriginal({'2026-10-21':daily['2026-10-21']},minute).candles.length,1);const withClose=parseOriginal(daily,{...minute,last_close:'10'});assert.equal(withClose.intraday[0].previousClose,10);assert.ok(Math.abs(withClose.intraday[0].changePercent-10)<1e-9);
+const weekend=await fetchSnapshot({code:'600519',market:'SSE'},{now:Date.parse('2026-10-24T11:31:00+08:00'),fetchImpl:async url=>({ok:true,json:async()=>url.includes('history')?daily:minute})});assert.equal(weekend.sources.daily,'original');assert.equal(weekend.stale,true);
+const calls=[];await fetchSnapshot({code:'600519',market:'SSE',name:'贵州茅台'},{fetchImpl:async url=>{calls.push(String(url));throw Error('offline');}});assert(calls.some(u=>u.includes('ifzq.gtimg.cn')));assert(calls.some(u=>u.includes('eastmoney')));
+console.log('PASS original parser, date and number guards, share units, snapshot and fallback');
+
+const dns=await fetchSnapshot({code:'600519',market:'SSE'},{fetchImpl:async url=>{if(String(url).includes('quote.aigupiao.com'))return {ok:false,status:502,json:async()=>({error:'行情域名解析失败'})};throw Error('offline');}});assert.equal(dns.fallbackReason,'行情域名解析失败');assert.ok(!String(dns.error).includes('原版行情暂不可用'));

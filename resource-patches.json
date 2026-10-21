@@ -1,0 +1,14 @@
+{
+  "res/values/colors.xml": [
+    "<color name=\"page_background1\">#fff5f6fa</color>"
+  ],
+  "res/values/strings.xml": [
+    "<string name=\"app_name\">哆哆赚钱</string>"
+  ],
+  "res/values-en/strings.xml": [
+    "<string name=\"app_name\">哆哆赚钱</string>"
+  ],
+  "res/values/styles.xml": [
+    "<style name=\"DodoLaunchTheme\" parent=\"@style/AppCompatTheme\">\n        <item name=\"android:windowBackground\">@drawable/dodo_starting_window</item>\n    </style>"
+  ]
+}

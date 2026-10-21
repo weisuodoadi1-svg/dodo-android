@@ -1,0 +1,12 @@
+{
+  "name": "dodo-android",
+  "private": true,
+  "version": "1.3.0-dodo.1",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/stocks/original.test.mjs && node tests/stocks/panel.test.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "24.1.3"
+  }
+}

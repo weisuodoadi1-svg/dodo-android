@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:id="@id/back_img" android:visibility="visible" android:layout_width="fill_parent" android:layout_height="fill_parent" android:scaleType="centerCrop" android:layout_above="@id/lyBottomLogo" />
+    <ImageView android:id="@id/gifImg" android:visibility="invisible" android:layout_width="375.0dip" android:layout_height="141.0dip" android:layout_centerInParent="true" />
+    <RelativeLayout android:id="@id/lyBottomLogo" android:visibility="visible" android:layout_width="fill_parent" android:layout_height="160.0dip" android:layout_alignParentBottom="true">
+        <ImageView android:id="@id/launcher_bottom_image" android:background="@android:color/transparent" android:visibility="invisible" android:layout_width="184.0dip" android:layout_height="81.0dip" android:layout_centerHorizontal="true" android:layout_centerVertical="true" />
+    </RelativeLayout> ` <RelativeLayout android:gravity="center" android:id="@id/adv_time_rl" android:background="#ff111111" android:visibility="gone" android:layout_width="80.0dip" android:layout_height="35.0dip" android:layout_marginTop="20.0dip" android:layout_marginRight="20.0dip" android:layout_alignParentRight="true" android:alpha="0.7" android:layout_alignParentEnd="true">
+        <TextView android:textSize="18.0sp" android:textColor="#ffffffff" android:gravity="center" android:id="@id/text_countdown" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="" />
+    </RelativeLayout>
+    <LinearLayout android:visibility="gone" android:layout_width="50.0dip" android:layout_height="wrap_content" android:layout_marginRight="10.0dip" android:layout_marginBottom="30.0dip" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" android:layout_marginEnd="20.0dip" android:layout_alignParentEnd="true">
+        <TextView android:textSize="14.0sp" android:textColor="#ffaaaaaa" android:gravity="center" android:id="@id/tv_jump" android:background="@drawable/shape_button_jump" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="35.0dip" android:text="跳过" />
+    </LinearLayout>
+</RelativeLayout>

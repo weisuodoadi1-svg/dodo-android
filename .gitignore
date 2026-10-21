@@ -1,0 +1,15 @@
+.tools/
+build/
+dist/
+node_modules/
+__pycache__/
+*.pyc
+*.apk
+*.idsig
+*.keystore
+*.jks
+*.pem
+*.key
+.env
+.env.*
+.DS_Store

@@ -1,0 +1,20 @@
+package local.zft;
+import android.content.*;import android.graphics.*;import android.net.Uri;import android.os.Build;import org.json.*;import java.io.*;import java.util.*;
+final class ChatUpload {
+ static File prepare(Context c,Uri uri)throws Exception{
+  if(uri==null||!"content".equals(uri.getScheme()))throw new IOException("请选择相册图片");String mime=c.getContentResolver().getType(uri);if(mime==null||!mime.startsWith("image/"))throw new IOException("请选择有效图片");byte[] bytes;try(InputStream in=c.getContentResolver().openInputStream(uri)){bytes=NativeChat.read(in,20*1024*1024);}Bitmap b;
+  if(Build.VERSION.SDK_INT>=28)b=ImageDecoder.decodeBitmap(ImageDecoder.createSource(java.nio.ByteBuffer.wrap(bytes)),(decoder,info,source)->{android.util.Size size=info.getSize();float scale=Math.min(1f,2048f/Math.max(size.getWidth(),size.getHeight()));decoder.setTargetSize(Math.max(1,(int)(size.getWidth()*scale)),Math.max(1,(int)(size.getHeight()*scale)));decoder.setAllocator(ImageDecoder.ALLOCATOR_SOFTWARE);});
+  else{BitmapFactory.Options o=new BitmapFactory.Options();o.inJustDecodeBounds=true;BitmapFactory.decodeByteArray(bytes,0,bytes.length,o);o.inSampleSize=1;while(Math.max(o.outWidth,o.outHeight)/o.inSampleSize>2048)o.inSampleSize*=2;o.inJustDecodeBounds=false;b=BitmapFactory.decodeByteArray(bytes,0,bytes.length,o);}if(b==null)throw new IOException("图片无法读取");File f=File.createTempFile("chat-image-",".jpg",c.getCacheDir());try(OutputStream out=new FileOutputStream(f)){if(!b.compress(Bitmap.CompressFormat.JPEG,90,out))throw new IOException("图片处理失败");}catch(Exception e){f.delete();throw e;}finally{b.recycle();}return f;
+ }
+ static Object service(Context context,JSONObject data)throws Exception{
+  JSONObject keys=data.getJSONObject("credentials");long expiry=data.getLong("expiredTime");if(expiry<=System.currentTimeMillis()/1000+10)throw new IOException("上传凭证已过期，请重试");
+  Class<?> credentials=Class.forName("com.tencent.qcloud.core.auth.QCloudCredentials"),provider=Class.forName("com.tencent.qcloud.core.auth.QCloudCredentialProvider"),config=Class.forName("com.tencent.cos.xml.CosXmlServiceConfig");
+  Object session=Class.forName("com.tencent.qcloud.core.auth.SessionQCloudCredentials").getConstructor(String.class,String.class,String.class,long.class).newInstance(keys.getString("tmpSecretId"),keys.getString("tmpSecretKey"),keys.getString("sessionToken"),expiry);
+  Object auth=Class.forName("com.tencent.qcloud.core.auth.StaticCredentialProvider").getConstructor(credentials).newInstance(session);Class<?> builder=Class.forName("com.tencent.cos.xml.CosXmlServiceConfig$Builder");Object b=builder.newInstance();builder.getMethod("setAppidAndRegion",String.class,String.class).invoke(b,"1251605428","ap-shanghai");builder.getMethod("isHttps",boolean.class).invoke(b,true);builder.getMethod("setConnectionTimeout",int.class).invoke(b,12000);builder.getMethod("setSocketTimeout",int.class).invoke(b,30000);Object cfg=builder.getMethod("builder").invoke(b);return Class.forName("com.tencent.cos.xml.CosXmlService").getConstructor(Context.class,config,provider).newInstance(context.getApplicationContext(),cfg,auth);
+ }
+ static String upload(Context context,JSONObject data,File file,String user)throws Exception{
+  if(!file.isFile()||file.length()==0||file.length()>20*1024*1024)throw new IOException("待发送图片已失效，请重新选择");BitmapFactory.Options o=new BitmapFactory.Options();o.inJustDecodeBounds=true;BitmapFactory.decodeFile(file.getPath(),o);if(o.outWidth<=0||o.outHeight<=0)throw new IOException("图片格式无效");
+  String date=new java.text.SimpleDateFormat("yyyy-M-d",Locale.US).format(new Date());String path="comment/"+date+"/"+user.replaceAll("[^0-9]","")+"_"+UUID.randomUUID()+"="+o.outWidth+"X"+o.outHeight+".jpg";
+  Object sdk=service(context,data);Class<?> request=Class.forName("com.tencent.cos.xml.model.object.PutObjectRequest");Object put=request.getConstructor(String.class,String.class,String.class).newInstance("sr-img-upload",path,file.getPath());sdk.getClass().getMethod("putObject",request).invoke(sdk,put);return "https://img1-cdn-picsh.stock-ring.com/"+path;
+ }
+}
